@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2 class="text-center">Schedule List</h2>
+        <div class="separator"></div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Crop</th>
+                    <th>Land Size (hectares)</th>
+                    <th>Start Date</th>
+                    <th>Estimated Harvest Date</th>
+                    <th>Estimated Harvest Quantity (kg)</th>
+                    {% if user.user_type == 'farmer' %}
+                        <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for calendar in calendars %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'calendar_detail' calendar.pk %}">{{ calendar.crop.name }}</a>
+                        </td>
+                        <td>{{ calendar.land_size }}</td>
+                        <td>{{ calendar.start_date }}</td>
+                        <td>{{ calendar.estimated_harvest_date }}</td>
+                        <td>{{ calendar.estimated_harvest_quantity }}</td>
+                        {% if user.user_type == 'farmer' %}
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'update_schedule' calendar.pk %}" class="btn btn-primary btn-sm">Update</a>
+                                    <form method="post" action="{% url 'delete_schedule' calendar.pk %}" style="display:inline; margin-left: 5px;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- Boutons Home et Add Schedule -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-start">
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    <i class="bi bi-house"></i>
+                </a>
+            </div>
+            {% if user.user_type == 'farmer' %}
+            <div class="text-right w-100">
+                <a href="{% url 'generate_schedule' %}" class="btn btn-success mx-auto">
+                    Add Schedule
+                </a>
+            </div>
+            {% endif %}
+            <div></div> <!-- Empty div to balance the flex alignment -->
+        </div>
+    </div>
+</div>
+{% endblock %}

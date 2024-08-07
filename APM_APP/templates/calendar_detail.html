@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2 class="text-center">Schedule Details</h2>
+        <div class="separator"></div>
+        <h3>{{ calendar.crop.name }} - {{ calendar.start_date|date:"F j, Y, g:i A" }}</h3>
+        <p><strong>Land Size:</strong> {{ calendar.land_size }} hectares</p>
+        <p><strong>Estimated Harvest Date:</strong> {{ calendar.estimated_harvest_date|date:"F j, Y, g:i A" }}</p>
+        <p><strong>Estimated Harvest Quantity:</strong> {{ calendar.estimated_harvest_quantity }} kg</p>
+        <p><strong>Created by:</strong> {{ calendar.user.username }}</p>
+        <div class="separator"></div>
+        <h4>Activities</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Activity Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Duration (hours)</th>
+                    <th>Scheduled Date</th>
+                    <th>End Date</th>
+                    <th>Equipment</th>
+                    <th>Materials</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in scheduled_activities %}
+                    <tr>
+                        <td>{{ item.activity.name }}</td>
+                        <td>{{ item.activity.description }}</td>
+                        <td>{{ item.activity.category.name }}</td>
+                        <td>{{ item.duration }}</td>
+                        <td>{{ item.scheduled_date|date:"F j, Y, g:i A" }}</td>
+                        <td>{{ item.end_date|date:"F j, Y, g:i A" }}</td>
+                        <td>
+                            {% for equipment in item.activity.equipment.all %}
+                                {{ equipment.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for material in item.activity.materials.all %}
+                                {{ material.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="separator"></div>
+
+        <!-- Affichage du graphique généré -->
+        <h4>Activity Schedule Chart</h4>
+        <div class="text-center mt-4">
+            <img src="data:image/png;base64,{{ graphic }}" alt="Activity Schedule">
+        </div>
+
+        <!-- Bouton retour vers la liste des emplois du temps -->
+        <div class="d-flex justify-content-between mt-3">
+            <div></div> <!-- Empty div to align buttons correctly -->
+            <a href="{% url 'schedule_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Schedule List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

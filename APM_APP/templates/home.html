@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    {% if user.is_authenticated %}
+        <h1 class="display-4 mb-4">Dashboard</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card clickable-card {% if user.user_type != 'farmer' %}disabled-card{% endif %}" 
+                    id="add-schedule-card" data-url="{% url 'generate_schedule' %}" data-enabled="{% if user.user_type == 'farmer' %}true{% else %}false{% endif %}">
+                    <div class="card-body">
+                        <h2>Add Schedule</h2>
+                        {% if user.user_type != 'farmer' %}
+                            <div class="overlay">
+                                <span class="lock-icon">&#x1F512;</span>
+                                <p class="card-text">Only for farmers</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card clickable-card {% if user.user_type != 'system_admin' %}disabled-card{% endif %}" 
+                    id="add-activity-card" data-url="{% url 'management' %}" data-enabled="{% if user.user_type == 'system_admin' %}true{% else %}false{% endif %}">
+                    <div class="card-body">
+                        <h2>Add Activity</h2>
+                        {% if user.user_type != 'system_admin' %}
+                            <div class="overlay">
+                                <span class="lock-icon">&#x1F512;</span>
+                                <p class="card-text">Only for system administrators</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h1 class="display-4 mb-4">Welcome to Agriculture Processing Management</h1>
+        <p class="lead">Your one-stop solution for managing agricultural processes efficiently.</p>
+        <p>Please login to continue.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const addScheduleCard = document.getElementById("add-schedule-card");
+        const addActivityCard = document.getElementById("add-activity-card");
+
+        if (addScheduleCard && addScheduleCard.dataset.enabled === "true") {
+            addScheduleCard.addEventListener("click", function() {
+                window.location.href = addScheduleCard.dataset.url;
+            });
+        }
+
+        if (addActivityCard && addActivityCard.dataset.enabled === "true") {
+            addActivityCard.addEventListener("click", function() {
+                window.location.href = addActivityCard.dataset.url;
+            });
+        }
+    });
+</script>
+
+<style>
+    .clickable-card {
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .clickable-card:hover {
+        background-color: #f0f0f0;
+    }
+
+    .disabled-card {
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    .disabled-card .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(128, 128, 128, 0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .lock-icon {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .card-text {
+        color: white;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2 class="text-center">Activity List</h2>
+        <div id="crop-activity-list">
+            {% for crop in crops %}
+                <div class="crop-section">
+                    <h3 class="crop-title" onclick="toggleActivities('{{ crop.id }}')">
+                        {{ crop.name }}
+                        <span class="toggle-icon">+</span>
+                    </h3>
+                    <div class="separator"></div>
+                    <table id="activities-{{ crop.id }}" class="table table-striped activity-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Duration (hours)</th>
+                                <th>Equipment</th>
+                                <th>Materials</th>
+                                <th>Optionnal</th> <!-- Nouvelle colonne -->
+                                {% if not user.user_type == 'farmer' %}
+                                    <th>Action</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in activities %}
+                                {% if activity.crop.id == crop.id %}
+                                    <tr>
+                                        <td>{{ activity.name }}</td>
+                                        <td>{{ activity.description }}</td>
+                                        <td>{{ activity.category.name }}</td>
+                                        <td>{{ activity.duration }}</td>
+                                        <td>
+                                            {% for equipment in activity.equipment.all %}
+                                                {{ equipment.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for material in activity.materials.all %}
+                                                {{ material.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>{{ activity.optionnal|yesno:"Yes,No" }}</td> <!-- Indicateur optionnel -->
+                                        {% if not user.user_type == 'farmer' %}
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'activity_update' activity.id %}" class="btn btn-primary btn-sm">Update</a>
+                                                    <form method="post" action="{% url 'activity_delete' activity.id %}" style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Boutons Home et Add Activity -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-start">
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    <i class="bi bi-house"></i>
+                </a>
+            </div>
+            {% if user.user_type == 'system_admin' or user.user_type == 'village_admin' %}
+            <div class="text-right w-100">
+                <a href="{% url 'management' %}" class="btn btn-success mx-auto">
+                    Add Activity
+                </a>
+            </div>
+            {% endif %}
+            <div></div> <!-- Empty div to balance the flex alignment -->
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleActivities(cropId) {
+        var table = document.getElementById('activities-' + cropId);
+        if (table.style.display === 'none') {
+            table.style.display = 'table';
+        } else {
+            table.style.display = 'none';
+        }
+    }
+</script>
+
+<style>
+    .toggle-icon {
+        cursor: pointer;
+        margin-left: 10px;
+        font-size: 1.2em;
+    }
+    .crop-section {
+        margin-bottom: 20px;
+    }
+    .separator {
+        border-top: 1px solid black;
+        margin: 10px 0;
+    }
+    .btn-group .btn {
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}

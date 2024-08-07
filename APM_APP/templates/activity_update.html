@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2>Update Activity</h2>
+        <div class="separator"></div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary mt-3">Update Activity</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2 class="text-center">Generate Schedule</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+        <!-- Bouton Home -->
+        <div class="text-start mt-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="bi bi-house"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

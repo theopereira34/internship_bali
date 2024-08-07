@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}home-background{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="content-wrapper">
+        <h2>Activity creation</h2>
+        <div class="separator"></div>
+
+        <div class="form-card">
+            <h3>Crop</h3>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                {{ crop_form|crispy }}
+                <button type="submit" name="crop_submit" class="btn btn-primary mt-3">Add Crop</button>
+            </form>
+            <ul class="list-group">
+                {% for crop in crops %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ crop.name }} - {{ crop.description }}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_crop" value="{{ crop.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="form-card">
+            <h3>Equipment</h3>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                {{ equipment_form|crispy }}
+                <button type="submit" name="equipment_submit" class="btn btn-primary mt-3">Add Equipment</button>
+            </form>
+            <ul class="list-group">
+                {% for equipment in equipments %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ equipment.name }} - {{ equipment.description }}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_equipment" value="{{ equipment.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="form-card">
+            <h3>Material</h3>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                {{ material_form|crispy }}
+                <button type="submit" name="material_submit" class="btn btn-primary mt-3">Add Material</button>
+            </form>
+            <ul class="list-group">
+                {% for material in materials %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ material.name }} - {{ material.description }}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_material" value="{{ material.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="form-card">
+            <h3>Activity Category</h3>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                {{ activity_category_form|crispy }}
+                <button type="submit" name="activity_category_submit" class="btn btn-primary mt-3">Add Activity Category</button>
+            </form>
+            <ul class="list-group">
+                {% for activity_category in activity_categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ activity_category.name }} - {{ activity_category.description }}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_activity_category" value="{{ activity_category.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="form-card">
+            <h3>Activity</h3>
+            <form id="activityForm" method="post" class="mb-3">
+                {% csrf_token %}
+                {{ activity_form|crispy }}
+                <button type="submit" name="activity_submit" class="btn btn-primary mt-3">Add Activity</button>
+            </form>
+        </div>
+
+        <!-- Bouton Home -->
+        <div class="text-start mt-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="bi bi-house"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stepField = document.querySelector('#id_step');
+        const cropField = document.querySelector('#id_crop');
+        const activityForm = document.querySelector('#activityForm');
+        let existingSteps = [];
+
+        // Fetch existing steps for the selected crop
+        function fetchExistingSteps(cropId) {
+            fetch(`/get_existing_steps/${cropId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    existingSteps = data.steps;
+                    validateStep();
+                });
+        }
+
+        // Validate step
+        function validateStep() {
+            const stepValue = parseInt(stepField.value);
+            if (stepValue === 0 || existingSteps.includes(stepValue)) {
+                stepField.setCustomValidity('Step must be greater than 0 and unique for the selected crop.');
+            } else {
+                stepField.setCustomValidity('');
+            }
+        }
+
+        // Event listeners
+        cropField.addEventListener('change', function() {
+            const cropId = this.value;
+            if (cropId) {
+                fetchExistingSteps(cropId);
+            }
+        });
+
+        stepField.addEventListener('input', validateStep);
+
+        activityForm.addEventListener('submit', function(event) {
+            validateStep();
+            if (!activityForm.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        // Initial validation
+        if (cropField.value) {
+            fetchExistingSteps(cropField.value);
+        }
+    });
+</script>
+
+{% endblock %}
